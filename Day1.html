@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyFlow - Master Your Time</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+            max-width: 420px;
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        
+        .app-header {
+            margin-bottom: 25px;
+        }
+
+        .logo-icon {
+            font-size: 50px;
+            margin-bottom: 10px;
+            display: block;
+            filter: drop-shadow(0 0 10px #38bdf8);
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 24px;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        p {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        
+        .input-box {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px 15px;
+            color: white;
+            outline: none;
+            font-size: 15px;
+        }
+
+        input::placeholder { color: #64748b; }
+
+        #add-btn {
+            background: #38bdf8;
+            color: #0f172a;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        #add-btn:hover { background: #7dd3fc; transform: scale(1.05); }
+
+        
+        ul { list-style: none; text-align: left; }
+
+        li {
+            background: rgba(255, 255, 255, 0.07);
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #38bdf8;
+            animation: slideIn 0.3s ease-out forwards;
+            transition: 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-15px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        li:hover { background: rgba(255, 255, 255, 0.12); }
+
+        .task-info { color: #e2e8f0; font-size: 15px; flex: 1; }
+
+        .done-btn {
+            background: #ef444433;
+            color: #f87171;
+            border: 1px solid #ef444455;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .done-btn:hover { background: #ef4444; color: white; }
+
+    </style>
+</head>
+<body>
+
+<div class="glass-card">
+    <div class="app-header">
+        <span class="logo-icon">📚⏰</span>
+        <h1>StudyFlow</h1>
+        <p>Plan Your Day. Reach Your Goal.</p>
+    </div>
+
+    <div class="input-box">
+        <input type="text" id="taskInput" placeholder="e.g. 6:00 AM – 7:30 AM Study">
+        <button id="add-btn">Add</button>
+    </div>
+
+    <ul id="taskList">
+        </ul>
+</div>
+
+<script>
+    const taskInput = document.getElementById('taskInput');
+    const addBtn = document.getElementById('add-btn');
+    const taskList = document.getElementById('taskList');
+
+    function addTask() {
+        const text = taskInput.value.trim();
+        if (text === "") return;
+
+        const li = document.createElement('li');
+        
+        const span = document.createElement('span');
+        span.className = "task-info";
+        span.textContent = text; 
+
+        const delBtn = document.createElement('button');
+        delBtn.className = "done-btn";
+        delBtn.textContent = "Done";
+
+        delBtn.onclick = function() {
+            li.style.transform = "scale(0.9)";
+            li.style.opacity = "0";
+            setTimeout(() => li.remove(), 300);
+        };
+
+        li.appendChild(span);
+        li.appendChild(delBtn);
+        taskList.appendChild(li);
+
+        taskInput.value = "";
+    }
+
+    addBtn.onclick = addTask;
+    taskInput.onkeypress = (e) => { if (e.key === 'Enter') addTask(); };
+</script>
+
+</body>
+</html>

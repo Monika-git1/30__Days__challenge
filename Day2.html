@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toggle dark</title>
+    <style>
+        
+        :root {
+            
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --accent: #6366f1;
+            --sidebar-bg: #0f172a;
+            --sidebar-text: #f8fafc;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            
+            --bg-color: #0f172a;       
+            --card-bg: #1e293b;        
+            --text-main: #f8fafc;      
+            --text-sub: #94a3b8;       
+            --accent: #818cf8;         
+            --sidebar-bg: #1e293b;
+            --border: rgba(255, 255, 255, 0.1);
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; transition: all 0.3s ease; }
+
+        body {
+            display: flex;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        
+        nav {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            padding: 2.5rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100%;
+            border-right: 1px solid var(--border);
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--accent);
+            letter-spacing: -1px;
+            margin-bottom: 3rem;
+        }
+
+        .nav-links { list-style: none; }
+        .nav-links li { margin-bottom: 10px; }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-sub);
+            display: block;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .nav-links a:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--accent);
+            transform: translateX(5px);
+        }
+
+        .nav-links a.active {
+            background-color: var(--accent);
+            color: white;
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.5);
+        }
+
+        
+        .main-content {
+            margin-left: 280px;
+            padding: 2.5rem;
+            width: 100%;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+
+        
+        .toggle-box {
+            background: var(--card-bg);
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .switch {
+            position: relative; display: inline-block;
+            width: 44px; height: 22px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: "☀️";
+            font-size: 12px; display: flex; align-items: center; justify-content: center;
+            height: 18px; width: 18px; left: 2px; bottom: 2px;
+            background-color: white; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--accent); }
+        input:checked + .slider:before {
+            content: "🌙";
+            transform: translateX(22px);
+        }
+
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent);
+        }
+
+        .card-tag {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--accent);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .card h3 { font-size: 1.3rem; margin-bottom: 10px; }
+        .card p { color: var(--text-sub); line-height: 1.6; margin-bottom: 20px; }
+
+        .btn-action {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        [data-theme="dark"] .card {
+            background: linear-gradient(145deg, #1e293b, #111827);
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">EVENTLY.PRO</div>
+        <ul class="nav-links">
+            <li><a class="active">Dashboard</a></li>
+            <li><a>All Events</a></li>
+            <li><a>Ticket Sales</a></li>
+            <li><a>Settings</a></li>
+        </ul>
+    </nav>
+
+    <div class="main-content">
+        <header>
+            <div>
+                <h1>Welcome back, Admin</h1>
+                <p style="color: var(--text-sub);">Here's what's happening today.</p>
+            </div>
+            
+            <div class="toggle-box">
+                <span style="font-size: 0.85rem; font-weight: 700;">Theme</span>
+                <label class="switch">
+                    <input type="checkbox" id="theme-checkbox">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </header>
+
+        <div class="grid">
+            <div class="card">
+                <span class="card-tag">UPCOMING</span>
+                <h3>Global Tech Expo 2026</h3>
+                <p>A showcase of the latest in AI and robotics. Over 500+ attendees expected.</p>
+                <button class="btn-action">View Analytics</button>
+            </div>
+
+            <div class="card">
+                <span class="card-tag" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">COMPLETED</span>
+                <h3>Jazz Night Chennai</h3>
+                <p>A soulful evening at the beachside. All tickets were sold out!</p>
+                <button class="btn-action">Download Report</button>
+            </div>
+
+            <div class="card">
+                <span class="card-tag" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">DRAFT</span>
+                <h3>React Developers Meet</h3>
+                <p>Drafting the speaker list and venue details for next month.</p>
+                <button class="btn-action">Continue Editing</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const toggle = document.querySelector('#theme-checkbox');
+        
+        
+        if(localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            toggle.checked = true;
+        }
+
+        toggle.addEventListener('change', () => {
+            if(toggle.checked) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        
+        const links = document.querySelectorAll('.nav-links a');
+        links.forEach(link => {
+            link.addEventListener('click', function() {
+                links.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
