@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Final | Day 3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        :root { --gold: #facc15; --bg: #0d1117; --card: #161b22; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        body { background: var(--bg); color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+
+        .container {
+            background: var(--card); padding: 40px; border-radius: 24px;
+            width: 100%; max-width: 450px; border: 1px solid #30363d;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        h2 { text-align: center; margin-bottom: 25px; }
+        input {
+            width: 100%; padding: 18px; border-radius: 12px; border: 2px solid #30363d;
+            background: #0d1117; color: white; font-size: 18px; outline: none; transition: 0.3s;
+        }
+        input:focus { border-color: var(--gold); }
+
+        .meter-container { margin-top: 20px; }
+        .bars { display: flex; gap: 8px; height: 8px; margin-top: 12px; }
+        .bar { flex: 1; background: #333; border-radius: 10px; transition: 0.4s; }
+
+        .hints { margin-top: 25px; font-size: 14px; color: #8b949e; list-style: none; margin-bottom: 25px; }
+        .hints li { margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .check-icon { color: #333; font-weight: 800; transition: 0.3s; }
+        
+        .valid-text { color: white !important; }
+        .valid-icon { color: var(--gold) !important; }
+
+        .confirm-btn {
+            width: 100%; padding: 18px; background: #333; color: #666; 
+            border: none; border-radius: 12px; font-weight: 800; font-size: 16px;
+            cursor: not-allowed; transition: 0.4s;
+        }
+        .btn-active { background: var(--gold); color: black; cursor: pointer; box-shadow: 0 0 20px rgba(250, 204, 21, 0.3); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Set <span style="color:var(--gold)">Password</span></h2>
+        
+        <input type="password" id="passInput" placeholder="Enter password..." oninput="analyze()">
+
+        <div class="meter-container">
+            <div style="display:flex; justify-content:space-between; font-size: 14px;">
+                <span>Security Level:</span>
+                <span id="status" style="font-weight:800;">Type something...</span>
+            </div>
+            <div class="bars">
+                <div class="bar" id="b1"></div>
+                <div class="bar" id="b2"></div>
+                <div class="bar" id="b3"></div>
+                <div class="bar" id="b4"></div>
+            </div>
+        </div>
+
+        <ul class="hints">
+            <li id="h-len"><span class="check-icon">✔</span> Min 8 characters</li>
+            <li id="h-num"><span class="check-icon">✔</span> One Number</li>
+            <li id="h-spec"><span class="check-icon">✔</span> One Special Character</li>
+        </ul>
+
+        <button id="confirmBtn" class="confirm-btn" onclick="submitPassword()" disabled>CONFIRM PASSWORD 🔒</button>
+    </div>
+
+    <script>
+        function analyze() {
+            const pass = document.getElementById('passInput').value;
+            const status = document.getElementById('status');
+            const btn = document.getElementById('confirmBtn');
+            const bars = [document.getElementById('b1'), document.getElementById('b2'), document.getElementById('b3'), document.getElementById('b4')];
+            
+            const hasLen = pass.length >= 8;
+            const hasNum = /\d/.test(pass);
+            const hasSpec = /[!@#$%^&*()]/.test(pass);
+            const hasUpper = /[A-Z]/.test(pass);
+
+            updateUI('h-len', hasLen);
+            updateUI('h-num', hasNum);
+            updateUI('h-spec', hasSpec);
+
+            let score = 0;
+            if (pass.length > 0) score = 1;
+            if (hasLen) score++;
+            if (hasNum || hasSpec) score++;
+            if (hasLen && hasNum && hasSpec && hasUpper) score = 4;
+
+            bars.forEach(b => b.style.backgroundColor = "#333");
+
+            if (pass.length === 0) {
+                status.innerText = "Type something...";
+                btn.disabled = true;
+                btn.classList.remove('btn-active');
+            } else if (score === 1) {
+                status.innerText = "Weak 🔴";
+                bars[0].style.backgroundColor = "#ff4d4d";
+            } else if (score === 2) {
+                status.innerText = "Medium 🟠";
+                bars[0].style.backgroundColor = "#ffa64d";
+                bars[1].style.backgroundColor = "#ffa64d";
+            } else if (score === 3 || score === 4) {
+                status.innerText = score === 4 ? "Unbreakable 💪" : "Good 🟢";
+                const color = score === 4 ? "#2eb82e" : "#facc15";
+                for(let i=0; i<=score-1; i++) if(bars[i]) bars[i].style.backgroundColor = color;
+                
+                
+                btn.disabled = false;
+                btn.classList.add('btn-active');
+                btn.innerText = "CONFIRM PASSWORD 🚀";
+            }
+        }
+
+        function updateUI(id, isValid) {
+            const el = document.getElementById(id);
+            const icon = el.querySelector('.check-icon');
+            if (isValid) {
+                el.classList.add('valid-text');
+                icon.classList.add('valid-icon');
+            } else {
+                el.classList.remove('valid-text');
+                icon.classList.remove('valid-icon');
+            }
+        }
+
+        function submitPassword() {
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+            alert("Password Confirmed & Saved!");
+        }
+    </script>
+</body>
+</html>
