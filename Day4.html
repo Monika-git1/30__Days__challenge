@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Digital Clock with Alarm</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        #clock {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        button {
+            padding: 8px 15px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            margin-left: 10px;
+            background: #ff9800;
+            color: white;
+        }
+
+        button:hover {
+            background: #e68900;
+        }
+
+        #alarmMessage {
+            margin-top: 20px;
+            font-size: 20px;
+            color: yellow;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="clock">00:00:00</div>
+
+    <input type="time" id="alarmTime">
+    <button onclick="setAlarm()">Set Alarm</button>
+
+    <div id="alarmMessage"></div>
+</div>
+
+<script>
+    let alarmTime = null;
+    let alarmTimeout = null;
+
+    function updateClock() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString();
+        document.getElementById("clock").innerText = timeString;
+
+        const currentHours = now.getHours().toString().padStart(2, "0");
+        const currentMinutes = now.getMinutes().toString().padStart(2, "0");
+        const currentTime = currentHours + ":" + currentMinutes;
+
+        if (alarmTime === currentTime) {
+            document.getElementById("alarmMessage").innerText = "⏰ Alarm Ringing!";
+            const audio = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
+            audio.play();
+            alarmTime = null; 
+        }
+    }
+
+    function setAlarm() {
+        alarmTime = document.getElementById("alarmTime").value;
+        if (alarmTime) {
+            document.getElementById("alarmMessage").innerText = "Alarm set for " + alarmTime;
+        }
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock();
+</script>
+
+</body>
+</html>
