@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Typing Speed Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: white;
+            width: 550px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+        }
+
+        #quote {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            resize: none;
+        }
+
+        .info {
+            margin-top: 15px;
+            font-size: 16px;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            border: none;
+            background: #667eea;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        button:hover {
+            background: #5a67d8;
+        }
+
+        .highlight {
+            background-color: #d4edda;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>⌨️ 30 Seconds Typing Test</h2>
+
+    <p id="quote">
+        Success does not happen overnight. It takes patience hard work and consistency.
+    </p>
+
+    <textarea id="input" placeholder="Start typing here..." disabled></textarea>
+
+    <div class="info">
+        ⏳ Time Left: <span id="time">30</span>s |
+        ⚡ WPM: <span id="wpm">0</span> |
+        ❌ Errors: <span id="errors">0</span>
+    </div>
+
+    <button onclick="startTest()">Start Test</button>
+</div>
+
+<script>
+    const quoteText = document.getElementById("quote").innerText;
+    const input = document.getElementById("input");
+    const timeDisplay = document.getElementById("time");
+    const wpmDisplay = document.getElementById("wpm");
+    const errorsDisplay = document.getElementById("errors");
+
+    const timeLimit = 30;
+    let timeLeft = timeLimit;
+    let timer = null;
+    let errors = 0;
+
+    function startTest() {
+        input.disabled = false;
+        input.value = "";
+        input.focus();
+
+        timeLeft = timeLimit;
+        errors = 0;
+        timeDisplay.innerText = timeLeft;
+        wpmDisplay.innerText = 0;
+        errorsDisplay.innerText = 0;
+
+        clearInterval(timer);
+        timer = setInterval(updateTimer, 1000);
+    }
+
+    function updateTimer() {
+        if (timeLeft > 0) {
+            timeLeft--;
+            timeDisplay.innerText = timeLeft;
+            calculateWPM();
+        } else {
+            clearInterval(timer);
+            input.disabled = true;
+            alert("⏰ Time's up!");
+        }
+    }
+
+    input.addEventListener("input", function () {
+        const inputText = input.value;
+        errors = 0;
+
+        for (let i = 0; i < inputText.length; i++) {
+            if (inputText[i] !== quoteText[i]) {
+                errors++;
+            }
+        }
+
+        errorsDisplay.innerText = errors;
+    });
+
+    function calculateWPM() {
+        const wordsTyped = input.value.trim().split(" ").length;
+        const timeSpent = timeLimit - timeLeft;
+        const wpm = timeSpent > 0 ? Math.round((wordsTyped / timeSpent) * 60) : 0;
+        wpmDisplay.innerText = wpm;
+    }
+</script>
+
+</body>
+</html>
+
