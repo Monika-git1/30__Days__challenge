@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Step Form | Day 6</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #7000ff; --bg: #05070a; --card: #161b22; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        body { background: var(--bg); color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+
+        .form-container {
+            background: var(--card); padding: 40px; border-radius: 24px;
+            width: 100%; max-width: 450px; border: 1px solid #30363d;
+        }
+
+        
+        .steps { display: flex; justify-content: space-between; margin-bottom: 30px; position: relative; }
+        .step-circle { 
+            width: 35px; height: 35px; background: #333; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; font-weight: 800;
+            z-index: 2; transition: 0.4s;
+        }
+        .step-circle.active { background: var(--primary); box-shadow: 0 0 15px var(--primary); }
+        .step-line { position: absolute; top: 17px; height: 2px; background: #333; width: 100%; z-index: 1; }
+
+        .form-step { display: none; }
+        .form-step.active { display: block; animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+        h2 { margin-bottom: 10px; font-size: 24px; }
+        p { color: #8b949e; margin-bottom: 20px; font-size: 14px; }
+
+        input {
+            width: 100%; padding: 15px; background: #0d1117; border: 1px solid #30363d;
+            border-radius: 12px; color: white; margin-bottom: 15px; outline: none;
+        }
+        input:focus { border-color: var(--primary); }
+        .error { color: #ff4d4d; font-size: 12px; margin-top: -10px; margin-bottom: 10px; display: none; }
+
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        .btn {
+            flex: 1; padding: 15px; border-radius: 12px; border: none;
+            font-weight: 800; cursor: pointer; transition: 0.3s;
+        }
+        .btn-next { background: var(--primary); color: white; }
+        .btn-prev { background: #333; color: white; }
+        .btn:hover { filter: brightness(1.2); }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <div class="steps">
+            <div class="step-line"></div>
+            <div class="step-circle active">1</div>
+            <div class="step-circle">2</div>
+            <div class="step-circle">3</div>
+        </div>
+
+        <div class="form-step active" id="step1">
+            <h2>Account Details</h2>
+            <p>Set up your login credentials.</p>
+            <input type="text" id="username" placeholder="Username">
+            <p id="err-user" class="error">Username is required!</p>
+            <input type="email" id="email" placeholder="Email Address">
+            <p id="err-email" class="error">Enter a valid email!</p>
+            <div class="btn-group">
+                <button class="btn btn-next" onclick="nextStep(1)">Next</button>
+            </div>
+        </div>
+
+        <div class="form-step" id="step2">
+            <h2>Personal Info</h2>
+            <p>Tell us more about yourself.</p>
+            <input type="text" id="fullname" placeholder="Full Name">
+            <input type="tel" id="phone" placeholder="Phone Number">
+            <div class="btn-group">
+                <button class="btn btn-prev" onclick="prevStep(2)">Back</button>
+                <button class="btn btn-next" onclick="nextStep(2)">Next</button>
+            </div>
+        </div>
+
+        <div class="form-step" id="step3">
+            <h2>Confirmation</h2>
+            <p>Review and submit your application.</p>
+            <div style="background: #0d1117; padding: 15px; border-radius: 12px; font-size: 14px; line-height: 1.6;">
+                Everything looks good! Click submit to finish.
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-prev" onclick="prevStep(3)">Back</button>
+                <button class="btn btn-next" onclick="finish()">Submit 🚀</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+
+        function showStep(step) {
+            document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+            document.getElementById('step' + step).classList.add('active');
+            
+            
+            document.querySelectorAll('.step-circle').forEach((circle, index) => {
+                if (index < step) circle.classList.add('active');
+                else circle.classList.remove('active');
+            });
+        }
+
+        function nextStep(step) {
+            
+            if (step === 1) {
+                const user = document.getElementById('username').value;
+                const email = document.getElementById('email').value;
+                let valid = true;
+
+                if (!user) { document.getElementById('err-user').style.display = 'block'; valid = false; }
+                else { document.getElementById('err-user').style.display = 'none'; }
+
+                if (!email.includes('@')) { document.getElementById('err-email').style.display = 'block'; valid = false; }
+                else { document.getElementById('err-email').style.display = 'none'; }
+
+                if (!valid) return;
+            }
+
+            currentStep++;
+            showStep(currentStep);
+        }
+
+        function prevStep(step) {
+            currentStep--;
+            showStep(currentStep);
+        }
+
+        function finish() {
+            alert("Form Submitted Successfully! 🎉");
+            location.reload();
+        }
+    </script>
+</body>
+</html>
