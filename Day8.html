@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            width: 350px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 65%;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 8px 12px;
+            border: none;
+            background: #4facfe;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #00c6ff;
+        }
+
+        .weather-info {
+            margin-top: 20px;
+        }
+
+        .error {
+            color: red;
+            margin-top: 15px;
+        }
+
+        .loading {
+            margin-top: 15px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🌦 Weather App</h2>
+
+    <input type="text" id="cityInput" placeholder="Enter city name">
+    <button onclick="getWeather()">Search</button>
+
+    <div class="loading" id="loading"></div>
+    <div class="weather-info" id="weatherInfo"></div>
+    <div class="error" id="errorMessage"></div>
+</div>
+
+<script>
+    const apiKey = "85f9ab332c5dcfa7d5c1b2fbdf4472c2";
+
+    async function getWeather() {
+        const city = document.getElementById("cityInput").value.trim();
+        const weatherInfo = document.getElementById("weatherInfo");
+        const errorMessage = document.getElementById("errorMessage");
+        const loading = document.getElementById("loading");
+
+        weatherInfo.innerHTML = "";
+        errorMessage.innerHTML = "";
+        loading.innerHTML = "";
+
+        if (city === "") {
+            errorMessage.innerText = "⚠ Please enter a city name.";
+            return;
+        }
+
+        loading.innerText = "Loading... ⏳";
+
+        try {
+            const response = await fetch(
+                `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`
+            );
+
+            const data = await response.json();
+
+            if (data.cod === "404") {
+                throw new Error("City not found");
+            }
+
+            if (data.cod === 401) {
+                throw new Error("Invalid API key");
+            }
+
+            loading.innerText = "";
+
+            weatherInfo.innerHTML = `
+                <h3>${data.name}, ${data.sys.country}</h3>
+                <p>🌡 Temperature: ${data.main.temp}°C</p>
+                <p>☁ Condition: ${data.weather[0].description}</p>
+                <p>💨 Wind Speed: ${data.wind.speed} m/s</p>
+                <p>💧 Humidity: ${data.main.humidity}%</p>
+            `;
+
+        } catch (error) {
+            loading.innerText = "";
+            errorMessage.innerText = "❌ " + error.message;
+        }
+    }
+</script>
+
+</body>
+</html>
