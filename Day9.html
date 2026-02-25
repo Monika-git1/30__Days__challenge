@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GitHub Profile Finder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: white;
+        }
+
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            width: 400px;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        input {
+            width: 70%;
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        button {
+            padding: 8px 12px;
+            border: none;
+            background: #28a745;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #218838;
+        }
+
+        img {
+            width: 120px;
+            border-radius: 50%;
+            margin-top: 15px;
+        }
+
+        .profile {
+            margin-top: 20px;
+        }
+
+        .error {
+            color: #ff4d4d;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🐙 GitHub Profile Finder</h2>
+
+    <input type="text" id="username" placeholder="Enter GitHub username">
+    <button onclick="getProfile()">Search</button>
+
+    <div class="profile" id="profile"></div>
+    <div class="error" id="error"></div>
+</div>
+
+<script>
+    async function getProfile() {
+        const username = document.getElementById("username").value.trim();
+        const profile = document.getElementById("profile");
+        const error = document.getElementById("error");
+
+        profile.innerHTML = "";
+        error.innerHTML = "";
+
+        if (username === "") {
+            error.innerText = "⚠ Please enter a username.";
+            return;
+        }
+
+        try {
+            const response = await fetch(`https://api.github.com/users/${username}`);
+            
+            if (!response.ok) {
+                throw new Error("User not found");
+            }
+
+            const data = await response.json();
+
+            profile.innerHTML = `
+                <img src="${data.avatar_url}" alt="Profile Image">
+                <h3>${data.name || data.login}</h3>
+                <p>📍 ${data.location || "Not Available"}</p>
+                <p>📦 Public Repos: ${data.public_repos}</p>
+                <p>👥 Followers: ${data.followers}</p>
+                <p>➡ Following: ${data.following}</p>
+                <a href="${data.html_url}" target="_blank" style="color: #00ffcc;">View Profile</a>
+            `;
+
+        } catch (err) {
+            error.innerText = "❌ " + err.message;
+        }
+    }
+</script>
+
+</body>
+</html>
