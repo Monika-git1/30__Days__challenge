@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Random Quote Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: white;
+        }
+
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            width: 400px;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        select, button {
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+            margin: 10px 5px;
+        }
+
+        button {
+            background: #ff9800;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #e68900;
+        }
+
+        .quote-box {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        .author {
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .error {
+            margin-top: 15px;
+            color: #ff4d4d;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>✨ Random Quote Generator</h2>
+
+    <select id="category">
+        <option value="all">All</option>
+        <option value="motivation">Motivation</option>
+        <option value="success">Success</option>
+        <option value="life">Life</option>
+    </select>
+
+    <button onclick="generateQuote()">New Quote</button>
+
+    <div class="quote-box" id="quote"></div>
+    <div class="author" id="author"></div>
+    <div class="error" id="error"></div>
+</div>
+
+<script>
+    const quotes = [
+        { text: "Push yourself, because no one else is going to do it for you.", author: "Unknown", category: "motivation" },
+        { text: "Success is not final, failure is not fatal.", author: "Winston Churchill", category: "success" },
+        { text: "Life is what happens when you're busy making other plans.", author: "John Lennon", category: "life" },
+        { text: "Dream big and dare to fail.", author: "Norman Vaughan", category: "motivation" },
+        { text: "Don’t be afraid to give up the good to go for the great.", author: "John D. Rockefeller", category: "success" },
+        { text: "In the end, we only regret the chances we didn’t take.", author: "Unknown", category: "life" }
+    ];
+
+    function generateQuote() {
+        const selectedCategory = document.getElementById("category").value;
+        const quoteElement = document.getElementById("quote");
+        const authorElement = document.getElementById("author");
+        const errorElement = document.getElementById("error");
+
+        errorElement.innerText = "";
+        quoteElement.innerText = "";
+        authorElement.innerText = "";
+
+        let filteredQuotes = quotes;
+
+        if (selectedCategory !== "all") {
+            filteredQuotes = quotes.filter(q => q.category === selectedCategory);
+        }
+
+        if (filteredQuotes.length === 0) {
+            errorElement.innerText = "❌ No quotes available in this category.";
+            return;
+        }
+
+        const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
+        const randomQuote = filteredQuotes[randomIndex];
+
+        quoteElement.innerText = `"${randomQuote.text}"`;
+        authorElement.innerText = `- ${randomQuote.author}`;
+    }
+
+    
+    generateQuote();
+</script>
+
+</body>
+</html>
