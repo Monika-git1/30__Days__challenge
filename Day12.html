@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Currency Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: white;
+        }
+
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            width: 350px;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+        }
+
+        button {
+            padding: 10px;
+            width: 100%;
+            background: #ff9800;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #e68900;
+        }
+
+        .result {
+            margin-top: 15px;
+            font-size: 18px;
+        }
+
+        .error {
+            margin-top: 10px;
+            color: #ff4d4d;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>💱 Currency Converter</h2>
+
+    <input type="number" id="amount" placeholder="Enter amount">
+
+    <select id="fromCurrency">
+        <option value="USD">USD</option>
+        <option value="INR">INR</option>
+        <option value="EUR">EUR</option>
+        <option value="GBP">GBP</option>
+        <option value="JPY">JPY</option>
+    </select>
+
+    <select id="toCurrency">
+        <option value="INR">INR</option>
+        <option value="USD">USD</option>
+        <option value="EUR">EUR</option>
+        <option value="GBP">GBP</option>
+        <option value="JPY">JPY</option>
+    </select>
+
+    <button onclick="convertCurrency()">Convert</button>
+
+    <div class="result" id="result"></div>
+    <div class="error" id="error"></div>
+</div>
+
+<script>
+async function convertCurrency() {
+    const amount = document.getElementById("amount").value;
+    const from = document.getElementById("fromCurrency").value;
+    const to = document.getElementById("toCurrency").value;
+    const resultDiv = document.getElementById("result");
+    const errorDiv = document.getElementById("error");
+
+    resultDiv.innerHTML = "";
+    errorDiv.innerHTML = "";
+
+    if (amount === "" || amount <= 0) {
+        errorDiv.innerText = "⚠ Please enter valid amount.";
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `https://api.exchangerate-api.com/v4/latest/${from}`
+        );
+
+        const data = await response.json();
+
+        const rate = data.rates[to];
+        const converted = (amount * rate).toFixed(2);
+
+        resultDiv.innerHTML = `
+            ${amount} ${from} = <b>${converted} ${to}</b>
+        `;
+
+    } catch (error) {
+        errorDiv.innerText = "❌ Something went wrong.";
+    }
+}
+</script>
+
+</body>
+</html>

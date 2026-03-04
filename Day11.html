@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>News Website</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+        }
+
+        header {
+            background: #111;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .search-box {
+            text-align: center;
+            margin: 20px;
+        }
+
+        input {
+            padding: 8px;
+            width: 250px;
+        }
+
+        button {
+            padding: 8px 12px;
+            background: #ff5722;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #e64a19;
+        }
+
+        .news-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .news-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .news-card img {
+            width: 100%;
+            border-radius: 5px;
+        }
+
+        .news-card h3 {
+            margin: 10px 0;
+        }
+
+        .news-card a {
+            text-decoration: none;
+            color: #ff5722;
+            font-weight: bold;
+        }
+
+        .error {
+            text-align: center;
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>📰 My News Website</h1>
+</header>
+
+<div class="search-box">
+    <input type="text" id="searchInput" placeholder="Search news topic">
+    <button onclick="getNews()">Search</button>
+</div>
+
+<div class="error" id="error"></div>
+<div class="news-container" id="newsContainer"></div>
+
+<script>
+    const apiKey = "20c8589da137499fb873adb4792eaf4f";
+
+    async function getNews() {
+        const query = document.getElementById("searchInput").value.trim();
+        const newsContainer = document.getElementById("newsContainer");
+        const error = document.getElementById("error");
+
+        newsContainer.innerHTML = "";
+        error.innerText = "";
+
+        if (query === "") {
+            error.innerText = "⚠ Please enter a topic.";
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                `https://newsapi.org/v2/everything?q=${query}&apiKey=${apiKey}`
+            );
+
+            const data = await response.json();
+
+            if (data.status !== "ok") {
+                throw new Error(data.message);
+            }
+
+            if (data.articles.length === 0) {
+                error.innerText = "No news found.";
+                return;
+            }
+
+            data.articles.slice(0, 10).forEach(article => {
+                const card = document.createElement("div");
+                card.classList.add("news-card");
+
+                card.innerHTML = `
+                    <img src="${article.urlToImage || 'https://via.placeholder.com/300'}">
+                    <h3>${article.title}</h3>
+                    <p>${article.description || ""}</p>
+                    <a href="${article.url}" target="_blank">Read More</a>
+                `;
+
+                newsContainer.appendChild(card);
+            });
+
+        } catch (err) {
+            error.innerText = "❌ " + err.message;
+        }
+    }
+</script>
+
+</body>
+</html>
