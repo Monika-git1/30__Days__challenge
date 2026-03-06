@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ticket Booking System</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: linear-gradient(135deg, #141E30, #243B55);
+            color: white;
+            text-align: center;
+            margin: 0;
+        }
+
+        .container {
+            margin-top: 40px;
+        }
+
+        select {
+            padding: 8px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+        }
+
+        .seat-container {
+            display: grid;
+            grid-template-columns: repeat(8, 40px);
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .seat {
+            width: 40px;
+            height: 40px;
+            background: #ccc;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .seat.selected {
+            background: #4CAF50;
+        }
+
+        .seat.booked {
+            background: red;
+            cursor: not-allowed;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: orange;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: darkorange;
+        }
+
+        #message {
+            margin-top: 15px;
+            font-weight: bold;
+            color: lightgreen;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🎬 Ticket Booking</h1>
+
+        <label>Select Movie:</label><br>
+        <select id="movie">
+            <option value="150">Leo - ₹150</option>
+            <option value="200">Jailer - ₹200</option>
+            <option value="180">Vikram - ₹180</option>
+        </select>
+
+        <div class="seat-container" id="seats"></div>
+
+        <p>Selected Seats: <span id="count">0</span></p>
+        <p>Total Price: ₹<span id="total">0</span></p>
+
+        <button onclick="confirmBooking()">Confirm Booking</button>
+
+        <p id="message"></p>
+    </div>
+
+    <script>
+        const seatContainer = document.getElementById("seats");
+        const count = document.getElementById("count");
+        const total = document.getElementById("total");
+        const movieSelect = document.getElementById("movie");
+
+        let ticketPrice = +movieSelect.value;
+
+        
+        for (let i = 0; i < 48; i++) {
+            const seat = document.createElement("div");
+            seat.classList.add("seat");
+
+            if (Math.random() < 0.2) {
+                seat.classList.add("booked");
+            }
+
+            seat.addEventListener("click", () => {
+                if (!seat.classList.contains("booked")) {
+                    seat.classList.toggle("selected");
+                    updateTotal();
+                }
+            });
+
+            seatContainer.appendChild(seat);
+        }
+
+        function updateTotal() {
+            const selectedSeats = document.querySelectorAll(".seat.selected");
+            count.innerText = selectedSeats.length;
+            total.innerText = selectedSeats.length * ticketPrice;
+        }
+
+        movieSelect.addEventListener("change", (e) => {
+            ticketPrice = +e.target.value;
+            updateTotal();
+        });
+
+        function confirmBooking() {
+            const selectedSeats = document.querySelectorAll(".seat.selected");
+
+            if (selectedSeats.length === 0) {
+                alert("Please select at least one seat!");
+                return;
+            }
+
+            selectedSeats.forEach(seat => {
+                seat.classList.remove("selected");
+                seat.classList.add("booked");
+            });
+
+            updateTotal();
+            document.getElementById("message").innerText =
+                "🎉 Booking Successful!";
+        }
+    </script>
+
+</body>
+</html>
