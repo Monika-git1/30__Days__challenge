@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modern Expense Tracker</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background: linear-gradient(135deg,#1e3c72,#2a5298);
+}
+
+.container{
+    width:420px;
+    backdrop-filter: blur(20px);
+    background: rgba(255,255,255,0.1);
+    padding:25px;
+    border-radius:20px;
+    color:white;
+    box-shadow:0 15px 35px rgba(0,0,0,0.3);
+}
+
+h2{
+    text-align:center;
+    margin-bottom:20px;
+    font-weight:600;
+}
+
+.balance{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.balance h3{
+    font-size:22px;
+}
+
+form{
+    margin-bottom:15px;
+}
+
+form input, form select{
+    width:100%;
+    padding:10px;
+    margin:8px 0;
+    border:none;
+    border-radius:8px;
+    outline:none;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    background:#00c6ff;
+    background:linear-gradient(to right,#00c6ff,#0072ff);
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+    transition:0.3s;
+}
+
+button:hover{
+    transform:scale(1.05);
+}
+
+ul{
+    list-style:none;
+    max-height:140px;
+    overflow-y:auto;
+    margin-top:10px;
+}
+
+li{
+    background:rgba(255,255,255,0.15);
+    padding:10px;
+    margin:5px 0;
+    border-radius:8px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.income{
+    border-left:4px solid #00ffae;
+}
+
+.expense{
+    border-left:4px solid #ff4e50;
+}
+
+.delete{
+    cursor:pointer;
+    font-weight:bold;
+    color:#ff6b6b;
+}
+
+canvas{
+    margin-top:20px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>💰 Expense Tracker</h2>
+
+    <div class="balance">
+        <h3>Balance: ₹ <span id="balance">0</span></h3>
+    </div>
+
+    <form id="form">
+        <input type="text" id="desc" placeholder="Enter reason (e.g., Salary, Grocery)" required>
+        <input type="number" id="amount" placeholder="Enter amount" required>
+        <select id="type">
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+        </select>
+        <button>Add Transaction</button>
+    </form>
+
+    <ul id="list"></ul>
+
+    <canvas id="chart"></canvas>
+</div>
+
+<script>
+const form = document.getElementById("form");
+const desc = document.getElementById("desc");
+const amount = document.getElementById("amount");
+const type = document.getElementById("type");
+const list = document.getElementById("list");
+const balanceEl = document.getElementById("balance");
+
+let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+
+function updateLocalStorage(){
+    localStorage.setItem("transactions", JSON.stringify(transactions));
+}
+
+function updateUI(){
+    list.innerHTML="";
+    let balance = 0;
+    let income = 0;
+    let expense = 0;
+
+    transactions.forEach((t,index)=>{
+        const li = document.createElement("li");
+        li.classList.add(t.type);
+        li.innerHTML = `
+            ${t.desc} 
+            <span>₹ ${t.amount}</span>
+            <span class="delete" onclick="deleteTransaction(${index})">x</span>
+        `;
+        list.appendChild(li);
+
+        if(t.type === "income"){
+            balance += t.amount;
+            income += t.amount;
+        }else{
+            balance -= t.amount;
+            expense += t.amount;
+        }
+    });
+
+    balanceEl.textContent = balance;
+    updateChart(income, expense);
+    updateLocalStorage();
+}
+
+function deleteTransaction(index){
+    transactions.splice(index,1);
+    updateUI();
+}
+
+form.addEventListener("submit",function(e){
+    e.preventDefault();
+
+    const newTransaction = {
+        desc: desc.value,
+        amount: +amount.value,
+        type: type.value
+    };
+
+    transactions.push(newTransaction);
+    desc.value="";
+    amount.value="";
+    updateUI();
+});
+
+let myChart;
+
+function updateChart(income, expense){
+    const ctx = document.getElementById("chart").getContext("2d");
+
+    if(myChart) myChart.destroy();
+
+    myChart = new Chart(ctx,{
+        type:'doughnut',
+        data:{
+            labels:["Income","Expense"],
+            datasets:[{
+                data:[income,expense],
+                backgroundColor:["#00ffae","#ff4e50"]
+            }]
+        }
+    });
+}
+
+updateUI();
+</script>
+
+</body>
+</html>
