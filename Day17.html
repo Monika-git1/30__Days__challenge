@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evently Pro | Fully Functional</title>
+    <style>
+        /* 1. PREMIUM DARK THEME COLORS */
+        :root {
+            --bg-color: #0a0a0b;
+            --sidebar-bg: #121214;
+            --card-bg: #1c1c1f;
+            --accent: #a29bfe;
+            --text-main: #ffffff;
+            --text-sub: #a0a0a5;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; min-height: 100vh; }
+
+        /* 2. SIDEBAR WITH ACTIVE STATES */
+        nav { width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 2rem; position: fixed; height: 100%; }
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--accent); margin-bottom: 3rem; }
+        
+        .nav-links { list-style: none; }
+        .nav-links li { 
+            padding: 12px 15px; 
+            border-radius: 10px; 
+            margin-bottom: 10px; 
+            cursor: pointer; 
+            color: var(--text-sub); 
+            transition: 0.3s;
+        }
+        .nav-links li:hover { color: var(--accent); background: rgba(162, 155, 254, 0.05); }
+        .nav-links li.active { background: var(--accent); color: #000; font-weight: bold; }
+
+        /* 3. CONTENT PAGES AREA */
+        .main-content { margin-left: 260px; padding: 2.5rem; width: 100%; }
+        .page { display: none; animation: fadeIn 0.4s ease; }
+        .page.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; }
+
+        /* 4. UI COMPONENTS */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+        .card { background: var(--card-bg); border: 1px solid var(--border); padding: 25px; border-radius: 20px; transition: 0.3s; }
+        .card:hover { border-color: var(--accent); transform: translateY(-5px); }
+        .price { font-size: 1.5rem; font-weight: bold; color: var(--accent); margin: 15px 0; }
+        .btn-add { background: var(--accent); color: #000; border: none; width: 100%; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+
+        .stat-card { background: linear-gradient(145deg, #1c1c1f, #121214); padding: 2rem; border-radius: 20px; border: 1px solid var(--border); text-align: center; }
+
+        /* 5. CART PANEL */
+        #cart-panel { position: fixed; right: -400px; top: 0; width: 380px; height: 100vh; background: #121214; border-left: 1px solid var(--border); padding: 2rem; transition: 0.5s; z-index: 100; display: flex; flex-direction: column; }
+        #cart-panel.open { right: 0; }
+        .cart-items-list { flex-grow: 1; margin: 1rem 0; overflow-y: auto; }
+        .cart-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--border); margin-bottom: 5px; }
+
+        /* 6. MODAL */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal { background: var(--card-bg); padding: 3rem; border-radius: 25px; text-align: center; border: 1px solid var(--accent); }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">EVENTLY.PRO</div>
+        <ul class="nav-links">
+            <li class="active" onclick="showPage('dashboard', this)">Dashboard</li>
+            <li onclick="showPage('events', this)">All Events</li>
+        </ul>
+    </nav>
+
+    <div class="main-content">
+        
+        <section id="dashboard" class="page active">
+            <header>
+                <h1>Admin Dashboard</h1>
+                <div onclick="toggleCart()" style="cursor:pointer; background: var(--card-bg); padding: 10px 20px; border-radius: 10px;">
+                    🛒 Cart (<span id="cart-count">0</span>)
+                </div>
+            </header>
+            <div class="grid">
+                <div class="stat-card">
+                    <h2 id="stat-tickets">0</h2>
+                    <p style="color: var(--text-sub);">Tickets in Cart</p>
+                </div>
+                <div class="stat-card">
+                    <h2 style="color: #10b981;">Active</h2>
+                    <p style="color: var(--text-sub);">System Status</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="events" class="page">
+            <header>
+                <h1>Available Events</h1>
+                <p>Book your slots now</p>
+            </header>
+            <div class="grid">
+                <div class="card">
+                    <h3>React Summit</h3>
+                    <p>Frontend Conference</p>
+                    <div class="price">₹2,499</div>
+                    <button class="btn-add" onclick="addToCart('React Summit', 2499)">Add to Cart</button>
+                </div>
+                <div class="card">
+                    <h3>Python Workshop</h3>
+                    <p>Data Science Basics</p>
+                    <div class="price">₹1,199</div>
+                    <button class="btn-add" onclick="addToCart('Python Workshop', 1199)">Add to Cart</button>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <div id="cart-panel">
+        <h2 style="display: flex; justify-content: space-between;">Cart <span onclick="toggleCart()" style="cursor:pointer;">✕</span></h2>
+        <div class="cart-items-list" id="list"></div>
+        <div style="border-top: 1px solid var(--border); padding-top: 1rem;">
+            <h3>Total: <span id="total">₹0</span></h3>
+            <button class="btn-add" style="margin-top: 15px; background: white;" id="checkoutBtn" onclick="checkout()" disabled>Checkout</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal">
+        <div class="modal">
+            <h1 style="font-size: 3rem;">✅</h1>
+            <h2>Payment Successful!</h2>
+            <p style="color: var(--text-sub); margin: 15px 0;">Your tickets are confirmed.</p>
+            <button class="btn-add" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        let cart = [];
+
+        // --- THE FIX: PAGE NAVIGATION LOGIC ---
+        function showPage(pageId, element) {
+            // 1. Hide all pages
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(p => p.classList.remove('active'));
+
+            // 2. Show the clicked page
+            document.getElementById(pageId).classList.add('active');
+
+            // 3. Update Sidebar UI
+            const links = document.querySelectorAll('.nav-links li');
+            links.forEach(l => l.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        // --- CART LOGIC ---
+        function toggleCart() {
+            document.getElementById('cart-panel').classList.toggle('open');
+        }
+
+        function addToCart(name, price) {
+            cart.push({name, price});
+            updateUI();
+            toggleCart();
+        }
+
+        function updateUI() {
+            const list = document.getElementById('list');
+            const total = document.getElementById('total');
+            const count = document.getElementById('cart-count');
+            const checkoutBtn = document.getElementById('checkoutBtn');
+            const statTickets = document.getElementById('stat-tickets');
+
+            count.innerText = cart.length;
+            statTickets.innerText = cart.length;
+
+            if(cart.length === 0) {
+                list.innerHTML = '<p style="text-align:center; color:gray;">Empty</p>';
+                total.innerText = '₹0';
+                checkoutBtn.disabled = true;
+                return;
+            }
+
+            checkoutBtn.disabled = false;
+            list.innerHTML = '';
+            let sum = 0;
+            cart.forEach(item => {
+                sum += item.price;
+                list.innerHTML += `<div class="cart-item"><span>${item.name}</span><span>₹${item.price}</span></div>`;
+            });
+            total.innerText = '₹' + sum;
+        }
+
+        function checkout() {
+            document.getElementById('modal').style.display = 'flex';
+            cart = [];
+            updateUI();
+            toggleCart();
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
