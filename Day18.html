@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 18 - Product Filter & Search</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --bg: #f8fafc;
+            --text: #1e293b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Controls Section */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        #search-item {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 20px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        #search-item:focus {
+            border-color: var(--primary);
+        }
+
+        .filter-buttons .btn {
+            padding: 8px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 20px;
+            background: #fff;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+
+        .filter-buttons .btn.active, .filter-buttons .btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Product Grid */
+        .product-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 25px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            display: block; /* Visible by default */
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: #e2e8f0;
+        }
+
+        .details {
+            padding: 15px;
+        }
+
+        .details h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.1rem;
+        }
+
+        .details p {
+            color: var(--primary);
+            font-weight: bold;
+            margin: 0;
+        }
+
+        /* Utility Class */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Tech & Trend Store</h1>
+    </header>
+
+    <div class="controls">
+        <input type="text" id="search-item" placeholder="Search by name..." onkeyup="filterProducts()">
+        
+        <div class="filter-buttons">
+            <button class="btn active" onclick="setCategory('all', this)">All</button>
+            <button class="btn" onclick="setCategory('electronics', this)">Electronics</button>
+            <button class="btn" onclick="setCategory('fashion', this)">Fashion</button>
+            <button class="btn" onclick="setCategory('kitchen', this)">Kitchen</button>
+        </div>
+    </div>
+
+    <div class="product-list" id="product-list">
+        <div class="product-card electronics">
+            <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400" alt="Phone">
+            <div class="details">
+                <h3>Smartphone X</h3>
+                <p>$799</p>
+            </div>
+        </div>
+
+        <div class="product-card electronics">
+            <img src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400" alt="Laptop">
+            <div class="details">
+                <h3>Pro Laptop</h3>
+                <p>$1200</p>
+            </div>
+        </div>
+
+        <div class="product-card fashion">
+            <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400" alt="Watch">
+            <div class="details">
+                <h3>Classic Watch</h3>
+                <p>$150</p>
+            </div>
+        </div>
+
+        <div class="product-card fashion">
+            <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400" alt="Shoes">
+            <div class="details">
+                <h3>Red Sneakers</h3>
+                <p>$85</p>
+            </div>
+        </div>
+
+        <div class="product-card kitchen">
+            <img src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=400" alt="Toaster">
+            <div class="details">
+                <h3>Retro Toaster</h3>
+                <p>$45</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentCategory = 'all';
+
+    function setCategory(category, button) {
+        // 1. Update active button UI
+        const buttons = document.querySelectorAll('.btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+
+        // 2. Set the global category and trigger filter
+        currentCategory = category;
+        filterProducts();
+    }
+
+    function filterProducts() {
+        const searchInput = document.getElementById('search-item').value.toLowerCase();
+        const cards = document.querySelectorAll('.product-card');
+
+        cards.forEach(card => {
+            const title = card.querySelector('h3').textContent.toLowerCase();
+            const categoryMatch = currentCategory === 'all' || card.classList.contains(currentCategory);
+            const searchMatch = title.includes(searchInput);
+
+            // Item must satisfy BOTH category and search text
+            if (categoryMatch && searchMatch) {
+                card.classList.remove('hidden');
+            } else {
+                card.classList.add('hidden');
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
