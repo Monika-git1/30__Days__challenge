@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickNotes | Categories & Search</title>
+    <style>
+        /* CSS STYLES */
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 260px;
+            background: white;
+            border-right: 1px solid var(--border);
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); letter-spacing: -1px; }
+
+        .nav-group h4 { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1rem; letter-spacing: 1px; }
+
+        .category-btn {
+            display: block;
+            width: 100%;
+            padding: 0.8rem 1rem;
+            margin-bottom: 0.5rem;
+            border: none;
+            background: transparent;
+            text-align: left;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-main);
+            transition: all 0.2s;
+        }
+
+        .category-btn:hover { background: #f9fafb; }
+        .category-btn.active { background: #eef2ff; color: var(--primary); }
+
+        /* Main Content Area */
+        .main-content { flex: 1; padding: 2rem; overflow-y: auto; }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            gap: 1rem;
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 400px;
+            padding: 0.8rem 1.2rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            outline: none;
+            font-size: 0.95rem;
+        }
+
+        .btn-add {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-add:hover { background: var(--primary-hover); }
+
+        /* Notes Grid */
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .note-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .note-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+
+        .card-tag {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: #f3f4f6;
+            padding: 3px 8px;
+            border-radius: 4px;
+            color: var(--text-muted);
+        }
+
+        .note-card h3 { margin: 1rem 0 0.5rem; font-size: 1.1rem; }
+        .note-card p { font-size: 0.9rem; color: #4b5563; line-height: 1.5; white-space: pre-wrap; }
+
+        .delete-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: #d1d5db;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .delete-btn:hover { color: #ef4444; }
+
+        /* Modal Overlay */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-body {
+            background: white;
+            width: 100%;
+            max-width: 450px;
+            padding: 2rem;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .modal-body input, .modal-body select, .modal-body textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .modal-body textarea { height: 150px; resize: none; }
+
+        .modal-footer { display: flex; justify-content: flex-end; gap: 1rem; }
+
+        .btn-cancel { background: #f3f4f6; border: none; padding: 0.8rem 1.2rem; border-radius: 8px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo">QuickNotes</div>
+        <div class="nav-group">
+            <h4>Categories</h4>
+            <div id="filterContainer">
+                <button class="category-btn active" data-cat="All">All Notes</button>
+                <button class="category-btn" data-cat="Work">Work</button>
+                <button class="category-btn" data-cat="Personal">Personal</button>
+                <button class="category-btn" data-cat="Study">Study</button>
+                <button class="category-btn" data-cat="Ideas">Ideas</button>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header>
+            <input type="text" id="searchBox" class="search-bar" placeholder="Search title or content...">
+            <button class="btn-add" id="newNoteBtn">+ Add Note</button>
+        </header>
+
+        <div class="notes-grid" id="notesContainer">
+            </div>
+    </main>
+
+    <div class="modal" id="noteModal">
+        <div class="modal-body">
+            <h3>Create a Note</h3>
+            <input type="text" id="noteTitle" placeholder="Title">
+            <select id="noteCategory">
+                <option value="Work">Work</option>
+                <option value="Personal" selected>Personal</option>
+                <option value="Study">Study</option>
+                <option value="Ideas">Ideas</option>
+            </select>
+            <textarea id="noteText" placeholder="Start typing..."></textarea>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="closeModal">Cancel</button>
+                <button class="btn-add" id="saveNote">Save Note</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JAVASCRIPT LOGIC
+        let notes = JSON.parse(localStorage.getItem('web_notes')) || [];
+        let activeFilter = 'All';
+
+        const notesContainer = document.getElementById('notesContainer');
+        const modal = document.getElementById('noteModal');
+        const searchBox = document.getElementById('searchBox');
+
+        // Render UI
+        function render() {
+            const searchTerm = searchBox.value.toLowerCase();
+            
+            const filtered = notes.filter(n => {
+                const matchesCat = activeFilter === 'All' || n.category === activeFilter;
+                const matchesSearch = n.title.toLowerCase().includes(searchTerm) || n.text.toLowerCase().includes(searchTerm);
+                return matchesCat && matchesSearch;
+            });
+
+            notesContainer.innerHTML = filtered.map(n => `
+                <div class="note-card">
+                    <button class="delete-btn" onclick="deleteNote(${n.id})">&times;</button>
+                    <span class="card-tag">${n.category}</span>
+                    <h3>${n.title}</h3>
+                    <p>${n.text}</p>
+                </div>
+            `).join('');
+            
+            if(filtered.length === 0) {
+                notesContainer.innerHTML = `<p style="color: #9ca3af; grid-column: 1/-1; text-align: center; margin-top: 2rem;">No notes found.</p>`;
+            }
+        }
+
+        // Add Note
+        document.getElementById('saveNote').addEventListener('click', () => {
+            const title = document.getElementById('noteTitle').value;
+            const text = document.getElementById('noteText').value;
+            const category = document.getElementById('noteCategory').value;
+
+            if(!title || !text) return alert("Please fill in both fields!");
+
+            const newNote = { id: Date.now(), title, text, category };
+            notes.unshift(newNote);
+            saveToStorage();
+            closeAndReset();
+            render();
+        });
+
+        // Delete Note
+        window.deleteNote = (id) => {
+            notes = notes.filter(n => n.id !== id);
+            saveToStorage();
+            render();
+        };
+
+        // Filter Logic
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelector('.category-btn.active').classList.remove('active');
+                btn.classList.add('active');
+                activeFilter = btn.dataset.cat;
+                render();
+            });
+        });
+
+        // Modal Helpers
+        document.getElementById('newNoteBtn').onclick = () => modal.classList.add('active');
+        document.getElementById('closeModal').onclick = closeAndReset;
+        
+        function closeAndReset() {
+            modal.classList.remove('active');
+            document.getElementById('noteTitle').value = '';
+            document.getElementById('noteText').value = '';
+        }
+
+        function saveToStorage() {
+            localStorage.setItem('web_notes', JSON.stringify(notes));
+        }
+
+        searchBox.oninput = render;
+
+        // Start
+        render();
+    </script>
+</body>
+</html>
