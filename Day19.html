@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 19 - Quiz App (30s Timer)</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --success: #22c55e;
+            --error: #ef4444;
+            --bg: #f1f5f9;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .quiz-container {
+            background: white;
+            width: 95%;
+            max-width: 500px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        #timer {
+            font-weight: bold;
+            color: var(--error);
+            font-size: 1.1rem;
+            background: #fee2e2;
+            padding: 8px 15px;
+            border-radius: 20px;
+            min-width: 60px;
+        }
+
+        #score-track { font-weight: 600; color: var(--primary); }
+
+        .question-text {
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            color: #1e293b;
+            min-height: 50px;
+        }
+
+        .btn-grid {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+
+        .btn:hover:not([disabled]) {
+            background-color: #f8fafc;
+            border-color: var(--primary);
+        }
+
+        .correct { background-color: var(--success) !important; color: white; border-color: var(--success); }
+        .wrong { background-color: var(--error) !important; color: white; border-color: var(--error); }
+
+        /* Next Button Styling */
+        #next-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        #restart-btn {
+            background-color: #1e293b;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-box">
+        <div class="header">
+            <span id="score-track">Score: 0/5</span>
+            <div id="timer">30s</div>
+        </div>
+        
+        <h2 class="question-text" id="question">Preparing Quiz...</h2>
+        
+        <div id="answer-buttons" class="btn-grid"></div>
+
+        <button id="next-btn" class="hidden">Next Question →</button>
+    </div>
+
+    <div id="result-box" class="hidden">
+        <h2>Quiz Finished! 🏁</h2>
+        <p id="final-score" style="font-size: 2rem; font-weight: bold; color: var(--primary);"></p>
+        <p id="message"></p>
+        <button id="restart-btn">Try Again</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        { q: "Which HTML tag is used for JavaScript?", a: [{t: "<js>", c: false}, {t: "<scripting>", c: false}, {t: "<script>", c: true}, {t: "<javascript>", c: false}] },
+        { q: "What does CSS stand for?", a: [{t: "Creative Style Sheets", c: false}, {t: "Cascading Style Sheets", c: true}, {t: "Computer Style Sheets", c: false}, {t: "Colorful Style Sheets", c: false}] },
+        { q: "Which is not a JS data type?", a: [{t: "String", c: false}, {t: "Boolean", c: false}, {t: "Float", c: true}, {t: "Number", c: false}] },
+        { q: "Which tag is used for a large heading?", a: [{t: "<h6>", c: false}, {t: "<heading>", c: false}, {t: "<h1>", c: true}, {t: "<head>", c: false}] },
+        { q: "Is JavaScript the same as Java?", a: [{t: "Yes", c: false}, {t: "No", c: true}] }
+    ];
+
+    let currentIdx = 0, score = 0, timeLeft = 30, timerInterval;
+
+    const questionEl = document.getElementById('question');
+    const answerBtnsEl = document.getElementById('answer-buttons');
+    const nextBtn = document.getElementById('next-btn');
+    const timerEl = document.getElementById('timer');
+    const scoreEl = document.getElementById('score-track');
+    const resultBox = document.getElementById('result-box');
+    const quizBox = document.getElementById('quiz-box');
+
+    function startQuiz() {
+        currentIdx = 0;
+        score = 0;
+        quizBox.classList.remove('hidden');
+        resultBox.classList.add('hidden');
+        showQuestion();
+    }
+
+    function showQuestion() {
+        resetState();
+        let q = questions[currentIdx];
+        questionEl.innerText = q.q;
+
+        q.a.forEach(ans => {
+            const btn = document.createElement('button');
+            btn.innerText = ans.t;
+            btn.classList.add('btn');
+            if (ans.c) btn.dataset.correct = "true";
+            btn.onclick = selectAnswer;
+            answerBtnsEl.appendChild(btn);
+        });
+        startTimer();
+    }
+
+    function resetState() {
+        clearInterval(timerInterval);
+        nextBtn.classList.add('hidden'); // Hide Next button for new question
+        while (answerBtnsEl.firstChild) answerBtnsEl.removeChild(answerBtnsEl.firstChild);
+    }
+
+    function startTimer() {
+        timeLeft = 30; // 30 Seconds as requested
+        timerEl.innerText = `${timeLeft}s`;
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerEl.innerText = `${timeLeft}s`;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                revealCorrect();
+                nextBtn.classList.remove('hidden'); // Show Next button when time is up
+            }
+        }, 1000);
+    }
+
+    function selectAnswer(e) {
+        clearInterval(timerInterval);
+        const selected = e.target;
+        const isCorrect = selected.dataset.correct === "true";
+        
+        if (isCorrect) {
+            selected.classList.add('correct');
+            score++;
+            scoreEl.innerText = `Score: ${score}/5`;
+        } else {
+            selected.classList.add('wrong');
+        }
+
+        revealCorrect();
+        nextBtn.classList.remove('hidden'); // Show Next button after clicking
+    }
+
+    function revealCorrect() {
+        Array.from(answerBtnsEl.children).forEach(btn => {
+            if (btn.dataset.correct === "true") btn.classList.add('correct');
+            btn.disabled = true;
+        });
+    }
+
+    nextBtn.onclick = () => {
+        currentIdx++;
+        if (currentIdx < questions.length) showQuestion();
+        else showResult();
+    };
+
+    function showResult() {
+        quizBox.classList.add('hidden');
+        resultBox.classList.remove('hidden');
+        document.getElementById('final-score').innerText = `${score} / ${questions.length}`;
+        document.getElementById('message').innerText = score > 3 ? "Great Job! 🌟" : "Keep Learning! 💪";
+    }
+
+    document.getElementById('restart-btn').onclick = startQuiz;
+
+    startQuiz();
+</script>
+
+</body>
+</html>
